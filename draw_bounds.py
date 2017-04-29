@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+# TODO: Need to access DrawBounds instances created inside create_canvas
+# May not be possible, or at least practical
+# Instead user will create an instance of drawbounds they intend to use for a data set
+# Will pass that into the create_canvas and the interaction will be setup there.
+
 
 class DrawBounds(object):
     """
@@ -12,21 +17,20 @@ class DrawBounds(object):
             self.ax = plt.gca()
         else:
             self.ax = ax
-        # TODO: Set xtol and ytol based on plotting scale.
 
-        coordinates = np.array([[xtol, ytol],
-                                [self.ax.get_xlim()[0], self.ax.get_ylim()[0]],
-                                [self.ax.get_xlim()[1], self.ax.get_ylim()[1]]])
-
-
+        # TODO: Current tolerance settings are just based off one test. Need to think about what other factors could break.
         if xtol is None:
-            self.xtol = abs(self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 100.
+            self.xtol = abs(self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 85.
         else:
             self.xtol = xtol
         if ytol is None:
-            self.ytol = abs(self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 100.
+            self.ytol = abs(self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 85.
         else:
             self.ytol = ytol
+
+        self._bounds = np.array([[self.xtol, self.ytol],
+                                 [self.ax.get_xlim()[0], self.ax.get_ylim()[0]],
+                                 [self.ax.get_xlim()[1], self.ax.get_ylim()[1]]])
         self.vertices = []
         self.edges = []
         self.button = []
@@ -50,6 +54,13 @@ class DrawBounds(object):
                 pass
 
     def draw_vertex(self, x, y):
+        # TODO: Would be nice to have a visual indication of when the point is snapped to new position
+        for vertex in self.vertices:
+            test_x, test_y = vertex.get_offsets()[0]
+            if abs(test_x - x) <= self.xtol and abs(test_y - y) <= self.ytol:
+                x = test_x
+                y = test_y
+
         m = self.ax.scatter(x, y, marker='d', c='r', zorder=100)
         self.vertices.append(m)
         self.ax.figure.canvas.draw_idle()
@@ -81,4 +92,3 @@ class DrawBounds(object):
         self.edges.pop()
         self.ax.figure.canvas.draw_idle()
 
-    # def radius(self, x, y):
