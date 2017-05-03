@@ -18,7 +18,9 @@ class DrawBounds(object):
         else:
             self.ax = ax
 
-        # TODO: Current tolerance settings are just based off one test. Need to think about what other factors could break.
+        # TODO: Current tolerance settings are just based off one test.
+        # Need to think about what other factors could break.
+
         if xtol is None:
             self.xtol = abs(self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 85.
         else:
@@ -91,4 +93,3 @@ class DrawBounds(object):
         l.remove()
         self.edges.pop()
         self.ax.figure.canvas.draw_idle()
-
